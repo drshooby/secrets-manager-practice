@@ -22,6 +22,7 @@ require (
 require (
 	filippo.io/edwards25519 v1.1.0 // indirect
 	github.com/aws/aws-sdk-go-v2/config v1.31.14
+	github.com/aws/aws-sdk-go-v2/service/rds v1.108.4
 	github.com/aws/aws-sdk-go-v2/service/secretsmanager v1.39.8
 	github.com/go-sql-driver/mysql v1.9.3 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
