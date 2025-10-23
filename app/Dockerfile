@@ -1,0 +1,44 @@
+# Build stage
+FROM golang:1.25.3-alpine AS build
+
+# Install build dependencies for CGO
+RUN apk add --no-cache gcc musl-dev
+
+WORKDIR /app 
+
+# Copy dependency files first for better layer caching
+COPY go.mod go.sum ./
+
+# Cache mounts speed up the installation of existing dependencies
+RUN --mount=type=cache,target=/go/pkg/mod \
+  --mount=type=cache,target=/root/.cache/go-build \
+  go mod download
+
+# Add non-root user (Alpine uses adduser instead of useradd)
+RUN adduser -D -u 1001 shooby
+
+COPY . .
+
+# Compile the application as a statically-linked binary
+RUN CGO_ENABLED=0 go build \
+  -ldflags="-s -w" \
+  -o web-app-golang
+
+# Production stage using minimal scratch image
+FROM scratch
+
+WORKDIR /
+
+# Copy the passwd file for our non-root user
+COPY --from=build /etc/passwd /etc/passwd
+
+# Copy the compiled binary
+COPY --from=build /app/web-app-golang web-app-golang
+
+# Use non-root user
+USER shooby
+
+# Expose the application port
+EXPOSE 8080
+
+CMD ["/web-app-golang"]
