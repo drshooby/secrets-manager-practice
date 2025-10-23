@@ -25,20 +25,15 @@ RUN CGO_ENABLED=0 go build \
   -o web-app-golang
 
 # Production stage using minimal scratch image
-FROM scratch
+FROM alpine:3.22.2
 
 WORKDIR /
 
-# Copy the passwd file for our non-root user
-COPY --from=build /etc/passwd /etc/passwd
-
-# Copy the compiled binary
 COPY --from=build /app/web-app-golang web-app-golang
 
 # Use non-root user
+COPY --from=build /etc/passwd /etc/passwd
 USER shooby
 
-# Expose the application port
 EXPOSE 8080
-
 CMD ["/web-app-golang"]
