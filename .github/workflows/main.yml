@@ -30,7 +30,7 @@ jobs:
           AWS_ID: ${{ secrets.AWS_ACCOUNT_ID }}
         run: |
           chmod 700 ./scripts/build_and_push
-          services="client server"
+          services="app"
           for dir in $services; do
             ./scripts/build_and_push "$dir" "$AWS_ID"
           done
