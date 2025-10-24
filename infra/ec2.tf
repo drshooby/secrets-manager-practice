@@ -1,6 +1,6 @@
 resource "aws_instance" "webserver" {
   ami                    = "ami-052064a798f08f0d3" # Amazon Linux 2
-  instance_type          = "t2.micro"
+  instance_type          = "t3.micro"
   subnet_id              = module.vpc.public_subnets[0]
   key_name               = "cloud-computing-kp"
   vpc_security_group_ids = [aws_security_group.webserver_sg.id]

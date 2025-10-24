@@ -1,0 +1,37 @@
+#!/bin/bash
+set -euo pipefail
+
+DB_USER=$1
+DB_PASSWORD=$2
+
+# Get Terraform outputs
+EC2_IP=$(cd ../infra && terraform output -raw ec2-ip)
+DB_URI=$(cd ../infra && terraform output -raw db-uri)
+DB_PORT=$(cd ../infra && terraform output -raw db-port)
+
+# Copy init.sql and app directory to EC2
+rsync -av -e "ssh -i ~/.ssh/cloud-computing-kp.pem" ../init.sql ../app ec2-user@"$EC2_IP":~
+
+echo "Files copied. Running remote setup..."
+
+# Run commands remotely
+ssh -i ~/.ssh/cloud-computing-kp.pem ec2-user@"$EC2_IP" bash -c "'
+sudo yum update -y
+sudo yum install -y docker
+sudo service docker start
+# Install MariaDB/MySQL client if missing
+if ! command -v mysql >/dev/null 2>&1; then
+    sudo dnf install -y mariadb105 || sudo yum install -y mariadb
+fi
+
+# Run the init SQL against RDS
+mysql -h "$DB_URI" -P "$DB_PORT" -u "$DB_USER" -p "$DB_PASSWORD" a14db < ~/init.sql
+
+# Optional: run Docker build and run
+cd ~/app
+sudo docker build -t myapp:latest .
+sudo docker images
+sudo docker run -d --name myapp-container -p 8080:8080 myapp:latest
+'"
+
+echo "Remote setup complete."
