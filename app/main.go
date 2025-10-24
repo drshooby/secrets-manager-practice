@@ -15,7 +15,7 @@ func main() {
 	e := echo.New()
 
 	awsConfig := builder.AWSConfigLoader("us-east-1")
-	dsn := builder.BuildDSN(awsConfig, "a14-db")
+	dsn := builder.BuildDSN(awsConfig, "a14db")
 
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
