@@ -47,7 +47,12 @@ resource "aws_iam_policy" "rds_policy" {
         Action = [
           "rds:DescribeDBInstances",
         ]
-        Resource = module.db.db_instance_arn
+        Resource = "*" // for future me: DescribeDBInstances does not support specific resource attachment
+        Condition = {  // best we can do for security is limit to region
+          StringEquals = {
+            "aws:RequestedRegion" = "${var.aws_region}"
+          }
+        }
       }
     ]
   })
@@ -56,6 +61,12 @@ resource "aws_iam_policy" "rds_policy" {
 resource "aws_iam_role_policy_attachment" "secrets_attach" {
   role       = aws_iam_role.app_role.name
   policy_arn = aws_iam_policy.secrets_manager_policy.arn
+}
+
+# pulls
+resource "aws_iam_role_policy_attachment" "ecr_readonly_attach" {
+  role       = aws_iam_role.app_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
 }
 
 resource "aws_iam_role_policy_attachment" "rds_attach" {
