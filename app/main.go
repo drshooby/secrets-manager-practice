@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	builder "github.com/drshooby/secrets-manager-practice/aws"
 	"github.com/drshooby/secrets-manager-practice/handlers"
 	"github.com/drshooby/secrets-manager-practice/models"
@@ -19,7 +21,7 @@ func main() {
 
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
-		panic("failed to connect database")
+		panic(fmt.Sprintf("ERROR: %s | failed to connect database w/ dsn: %s", err, dsn))
 	}
 
 	db.AutoMigrate(&models.Song{})
