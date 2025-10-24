@@ -37,6 +37,7 @@ func getDBInfo(cfg aws.Config, dbName string) (map[string]string, error) {
 			instanceInfoMap["name"] = dbName
 			instanceInfoMap["endpoint"] = utils.SafeDeref(instance.Endpoint.Address, "")
 			instanceInfoMap["port"] = fmt.Sprintf("%d", utils.SafeDeref(instance.Endpoint.Port, 0))
+			return instanceInfoMap, nil
 		}
 	}
 	return instanceInfoMap, fmt.Errorf("map is empty")
